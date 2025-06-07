@@ -24,9 +24,6 @@ class ResetPassword extends Component
 
     public string $password_confirmation = '';
 
-    /**
-     * Mount the component.
-     */
     public function mount(string $token): void
     {
         $this->token = $token;
@@ -34,9 +31,6 @@ class ResetPassword extends Component
         $this->email = request()->string('email');
     }
 
-    /**
-     * Reset the password for the given user.
-     */
     public function resetPassword(): void
     {
         $this->validate([
