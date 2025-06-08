@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class UpdateTaskController extends Controller
@@ -17,7 +18,7 @@ class UpdateTaskController extends Controller
 
         $validatedData = $request->validated();
         $task->fill($validatedData);
-        $task->save();
+        DB::transaction(fn() => $task->save());
         $task->load('assignee');
         return new TaskResource($task);
     }
