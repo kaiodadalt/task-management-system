@@ -2,8 +2,11 @@
 
 namespace App\Domain\Task;
 
+use App\Domain\Task\Observers\TaskObserver;
 use App\Domain\User\User;
+use Carbon\CarbonImmutable;
 use Database\Factories\Domain\Task\TaskFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,9 +16,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $created_by
  * @property int $assigned_to
+ * @property int $id
+ * @property string $title
+ * @property string $description
+ * @property TaskStatus $status
+ * @property TaskPriority $priority
+ * @property CarbonImmutable $due_date
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  * @method static findOrFail(int $id)
  * @method static find(mixed $id)
  */
+#[ObservedBy([TaskObserver::class])]
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */

@@ -1,11 +1,17 @@
 <?php
 
+use App\Domain\Task\Events\TaskCreated;
 use App\Domain\Task\Task;
 use App\Domain\Task\TaskPriority;
 use App\Domain\Task\TaskStatus;
 use App\Domain\User\User;
 use Laravel\Sanctum\Sanctum;
 use Symfony\Component\HttpFoundation\Response;
+
+beforeEach(function () {
+    Event::fake([TaskCreated::class]);
+    Queue::fake();
+});
 
 test('authenticated user can create task', function () {
     $user = User::factory()->create();
@@ -157,4 +163,43 @@ test('task is created with minimal required fields', function () {
         'assigned_to' => null,
         'due_date' => null,
     ]);
+});
+
+test('task created event is dispatched over broadcast channels when task is created', function () {
+    $creator = User::factory()->create();
+    $assignee = User::factory()->create();
+
+    $this->actingAs($creator);
+
+    $task = Task::create([
+        'title' => 'Test Task',
+        'description' => 'Test Description',
+        'status' => TaskStatus::PENDING->value,
+        'priority' => TaskPriority::MEDIUM->value,
+        'due_date' => now()->addDays(5)->toDateTimeString(),
+        'created_by' => $creator->id,
+        'assigned_to' => $assignee->id,
+    ]);
+
+    Event::assertDispatched(TaskCreated::class, function (TaskCreated $event) use ($task, $creator, $assignee) {
+        if ($event->task->id !== $task->id) {
+            return false;
+        }
+
+        $channels = $event->broadcastOn();
+
+        // one for creator and one for assignee
+        if (count($channels) !== 2) {
+            return false;
+        }
+
+        $payload = $event->broadcastWith();
+
+        return $payload['id'] === $task->id &&
+            $payload['title'] === $task->title &&
+            $payload['created_by'] === $creator->id &&
+            $payload['assigned_to'] === $assignee->id &&
+            $payload['status'] === TaskStatus::PENDING->value &&
+            $payload['priority'] === TaskPriority::MEDIUM->value;
+    });
 });
