@@ -1,5 +1,7 @@
 <?php
 
+use App\Domain\Task\Events\TaskDeleted;
+use App\Domain\Task\Events\TaskSaved;
 use App\Domain\Task\Task;
 use App\Domain\Task\TaskPriority;
 use App\Domain\Task\TaskStatus;
@@ -8,6 +10,9 @@ use Laravel\Sanctum\Sanctum;
 use Symfony\Component\HttpFoundation\Response;
 
 beforeEach(function () {
+    Event::fake([TaskSaved::class]);
+    Event::fake([TaskDeleted::class]);
+    Queue::fake();
     $this->creator = User::factory()->create();
     $this->otherUser = User::factory()->create();
     $this->task = Task::factory()->create([
@@ -18,6 +23,7 @@ beforeEach(function () {
         'priority' => TaskPriority::MEDIUM,
     ]);
 });
+
 
 test('task owner can delete their task', function () {
     Sanctum::actingAs($this->creator);
@@ -76,4 +82,25 @@ test('deleting task does not affect other tasks', function () {
 
     $this->assertModelMissing($this->task);
     $this->assertModelExists($anotherTask);
+});
+
+test('task deleted event is dispatched when task is deleted directly', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $task = Task::factory()->create([
+        'created_by' => $user->id,
+        'assigned_to' => $user->id,
+        'status' => TaskStatus::PENDING->value,
+        'priority' => TaskPriority::MEDIUM->value,
+    ]);
+
+    $task->delete();
+
+    Event::assertDispatched(TaskDeleted::class, function (TaskDeleted $event) use ($task) {
+        return $event->task->id === $task->id &&
+            $event->task->title === $task->title &&
+            $event->task->created_by === $task->created_by &&
+            $event->task->assigned_to === $task->assigned_to;
+    });
 });

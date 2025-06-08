@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\Task\Events\TaskCreated;
+use App\Domain\Task\Events\TaskSaved;
 use App\Domain\Task\Task;
 use App\Domain\Task\TaskPriority;
 use App\Domain\Task\TaskStatus;
@@ -9,7 +9,7 @@ use Laravel\Sanctum\Sanctum;
 use Symfony\Component\HttpFoundation\Response;
 
 beforeEach(function () {
-    Event::fake([TaskCreated::class]);
+    Event::fake([TaskSaved::class]);
     Queue::fake();
 });
 
@@ -181,7 +181,7 @@ test('task created event is dispatched over broadcast channels when task is crea
         'assigned_to' => $assignee->id,
     ]);
 
-    Event::assertDispatched(TaskCreated::class, function (TaskCreated $event) use ($task, $creator, $assignee) {
+    Event::assertDispatched(TaskSaved::class, function (TaskSaved $event) use ($task, $creator, $assignee) {
         if ($event->task->id !== $task->id) {
             return false;
         }

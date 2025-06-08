@@ -2,7 +2,8 @@
 
 namespace App\Domain\Task\Observers;
 
-use App\Domain\Task\Events\TaskCreated;
+use App\Domain\Task\Events\TaskDeleted;
+use App\Domain\Task\Events\TaskSaved;
 use App\Domain\Task\Task;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 
@@ -10,16 +11,16 @@ class TaskObserver implements ShouldHandleEventsAfterCommit
 {
     public function created(Task $task): void
     {
-        TaskCreated::dispatch($task);
+        TaskSaved::dispatch($task);
     }
 
     public function updated(Task $task): void
     {
-        // TODO: implement this
+        TaskSaved::dispatch($task);
     }
 
     public function deleted(Task $task): void
     {
-        // TODO: implement this
+        TaskDeleted::dispatch($task);
     }
 }

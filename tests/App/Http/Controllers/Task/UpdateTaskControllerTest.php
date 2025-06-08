@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Task\Events\TaskSaved;
 use App\Domain\Task\Task;
 use App\Domain\Task\TaskPriority;
 use App\Domain\Task\TaskStatus;
@@ -9,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 
 beforeEach(function () {
+    Event::fake([TaskSaved::class]);
+    Queue::fake();
     $this->creator = User::factory()->create();
     $this->otherUser = User::factory()->create();
     $this->task = Task::factory()->create([
@@ -223,4 +226,32 @@ test('task owner can change status', function () {
 
     expect(Task::find($this->task->id))
         ->status->toBe(TaskStatus::COMPLETED);
+});
+
+test('task saved event is dispatched when task is updated', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $task = Task::factory()->create([
+        'created_by' => $user->id,
+        'assigned_to' => $user->id,
+        'title' => 'Original Title',
+        'description' => 'Original Description',
+        'status' => TaskStatus::PENDING->value,
+        'priority' => TaskPriority::MEDIUM->value,
+        'due_date' => now()->addDays(5),
+    ]);
+
+    $task->update([
+        'title' => 'Updated Title',
+        'description' => 'Updated Description',
+        'status' => TaskStatus::IN_PROGRESS->value,
+    ]);
+
+    Event::assertDispatched(TaskSaved::class, function (TaskSaved $event) use ($task) {
+        return $event->task->id === $task->id &&
+            $event->task->title === 'Updated Title' &&
+            $event->task->description === 'Updated Description' &&
+            $event->task->status === TaskStatus::IN_PROGRESS;
+    });
 });
