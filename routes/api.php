@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Task\CreateTaskController;
+use App\Http\Controllers\Task\DeleteTaskController;
 use App\Http\Controllers\Task\UpdateTaskController;
 use App\Http\Controllers\Task\ViewTaskController;
 use Illuminate\Http\Request;
@@ -15,5 +16,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', CreateTaskController::class)->name('tasks.create');
         Route::get('/{task}', ViewTaskController::class)->name('tasks.view');
         Route::put('/{task}', UpdateTaskController::class)->name('tasks.update');
+        Route::delete('/{task}', DeleteTaskController::class)->name('tasks.delete');
     });
 });
