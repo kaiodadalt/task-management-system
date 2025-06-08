@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $created_by
  * @property int $assigned_to
+ * @method static findOrFail(int $id)
  */
 class Task extends Model
 {
