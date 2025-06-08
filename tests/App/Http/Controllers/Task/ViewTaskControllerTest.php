@@ -1,12 +1,8 @@
 <?php
 
-
-namespace Tests\Feature\Controllers;
-
 use App\Domain\Task\Task;
 use App\Domain\User\User;
 use Symfony\Component\HttpFoundation\Response;
-
 
 test('task creator can view their task', function () {
     $user = User::factory()->create();
