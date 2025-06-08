@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Auth;
 
-use App\Models\User;
+use App\Domain\User\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
