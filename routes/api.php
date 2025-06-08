@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Task\CreateTaskController;
 use App\Http\Controllers\Task\DeleteTaskController;
+use App\Http\Controllers\Task\SearchTaskController;
 use App\Http\Controllers\Task\UpdateTaskController;
 use App\Http\Controllers\Task\ViewTaskController;
 use Illuminate\Http\Request;
@@ -13,6 +14,8 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('tasks')->group(function () {
+        Route::get('/search', SearchTaskController::class)->name('tasks.search');
+
         Route::post('/', CreateTaskController::class)->name('tasks.create');
         Route::get('/{task}', ViewTaskController::class)->name('tasks.view');
         Route::put('/{task}', UpdateTaskController::class)->name('tasks.update');

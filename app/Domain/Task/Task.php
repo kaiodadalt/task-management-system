@@ -4,6 +4,8 @@ namespace App\Domain\Task;
 
 use App\Domain\User\User;
 use Database\Factories\Domain\Task\TaskFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -47,4 +49,47 @@ class Task extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    #[Scope]
+    public function status(Builder $query, ?TaskStatus $status = null): Builder
+    {
+        return $status
+            ? $query->where('status', $status?->value)
+            : $query;
+    }
+
+    #[Scope]
+    public function forUser(Builder $query, int $user_id): Builder
+    {
+        return $query->where(function ($query) use ($user_id) {
+            $query->where('created_by', $user_id)
+                ->orWhere('assigned_to', $user_id);
+        });
+    }
+
+
+    #[Scope]
+    public function priority(Builder $query, ?TaskPriority $priority = null): Builder
+    {
+        return $priority
+            ? $query->where('priority', $priority?->value)
+            : $query;
+    }
+
+    #[Scope]
+    public function createdAtBetween(Builder $query, ?string $start = null, ?string $end = null): Builder
+    {
+        if ($start && $end) {
+            return $query->whereBetween('created_at', [$start, $end]);
+        }
+
+        if ($start) {
+            return $query->where('created_at', '>=', $start);
+        }
+
+        if ($end) {
+            return $query->where('created_at', '<=', $end);
+        }
+
+        return $query;
+    }
 }
