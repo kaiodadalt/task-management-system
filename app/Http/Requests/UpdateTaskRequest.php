@@ -25,7 +25,6 @@ final class UpdateTaskRequest extends FormRequest
             'priority' => ['sometimes', 'required', new Enum(TaskPriority::class)],
             'due_date' => ['sometimes', 'nullable', 'date', 'after_or_equal:today'],
             'assigned_to' => ['sometimes', 'nullable', 'exists:users,id'],
-
         ];
     }
 }

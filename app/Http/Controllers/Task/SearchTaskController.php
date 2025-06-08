@@ -8,7 +8,6 @@ use App\Domain\Task\TaskStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SearchTaskRequest;
 use App\Http\Resources\TaskCollection;
-use Carbon\CarbonImmutable;
 
 class SearchTaskController extends Controller
 {
@@ -17,13 +16,11 @@ class SearchTaskController extends Controller
         $tasks = Task::query()
             ->status(TaskStatus::tryFrom($request->status))
             ->priority(TaskPriority::tryFrom($request->priority))
-            ->createdAtBetween(CarbonImmutable::parse($request->start_date), $request->end_date)
+            ->createdAtBetween($request->start_date, $request->end_date)
             ->forUser(auth()->id())
             ->paginate(
-                $request->input('per_page', 10), // default to 10
-                ['*'],
-                'page',
-                $request->input('page', 1)
+                perPage: $request->input('per_page', default: 10),
+                page: $request->input('page', default: 1)
             );
         return new TaskCollection($tasks);
     }
