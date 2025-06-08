@@ -14,9 +14,9 @@ class CreateTaskController extends Controller
     {
         Gate::authorize('create', Task::class);
 
-        $validated_task = $request->validated();
-        $validated_task['created_by'] = auth()->id();
-        $task = Task::create($validated_task);
+        $validatedTask = $request->validated();
+        $validatedTask['created_by'] = auth()->id();
+        $task = Task::create($validatedTask);
         return new TaskResource($task);
     }
 }

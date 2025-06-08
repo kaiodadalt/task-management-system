@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $created_by
  * @property int $assigned_to
  * @method static findOrFail(int $id)
+ * @method static find(mixed $id)
  */
 class Task extends Model
 {

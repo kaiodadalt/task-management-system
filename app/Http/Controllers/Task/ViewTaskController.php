@@ -9,10 +9,8 @@ use Illuminate\Support\Facades\Gate;
 
 class ViewTaskController extends Controller
 {
-    public function __invoke(int $id): TaskResource
+    public function __invoke(Task $task): TaskResource
     {
-        $task = Task::findOrFail($id);
-
         Gate::authorize('view', $task);
 
         return new TaskResource($task);
