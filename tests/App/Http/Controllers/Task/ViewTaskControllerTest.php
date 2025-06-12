@@ -1,8 +1,14 @@
 <?php
 
+use App\Domain\Task\Events\TaskSaved;
 use App\Domain\Task\Task;
 use App\Domain\User\User;
 use Symfony\Component\HttpFoundation\Response;
+
+beforeEach(function () {
+    Event::fake([TaskSaved::class]);
+    Queue::fake();
+});
 
 test('task creator can view their task', function () {
     $user = User::factory()->create();

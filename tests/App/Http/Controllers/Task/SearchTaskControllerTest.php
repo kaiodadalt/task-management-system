@@ -1,6 +1,7 @@
 
 <?php
 
+use App\Domain\Task\Events\TaskSaved;
 use App\Domain\Task\Task;
 use App\Domain\Task\TaskPriority;
 use App\Domain\Task\TaskStatus;
@@ -11,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 beforeEach(function () {
     $this->user = User::factory()->create();
     $this->anotherUser = User::factory()->create();
+    Event::fake([TaskSaved::class]);
+    Queue::fake();
 });
 
 test('user can see only their own tasks', function () {

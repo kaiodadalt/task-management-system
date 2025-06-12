@@ -1,8 +1,15 @@
 
 <?php
 
+use App\Domain\Task\Events\TaskDeleted;
+use App\Domain\Task\Events\TaskSaved;
 use App\Domain\Task\Task;
 use App\Domain\User\User;
+
+beforeEach(function () {
+    Event::fake([TaskSaved::class, TaskDeleted::class]);
+    Queue::fake();
+});
 
 test('user can create a task', function () {
     $user = User::factory()->create();
